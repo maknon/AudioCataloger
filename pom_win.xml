@@ -61,17 +61,17 @@
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-analysis-common</artifactId>
-			<version>9.0.0</version>
+			<version>9.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-highlighter</artifactId>
-			<version>9.0.0</version>
+			<version>9.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-queryparser</artifactId>
-			<version>9.0.0</version>
+			<version>9.2.0</version>
 		</dependency>
 		<!--
 		<dependency>
@@ -102,7 +102,7 @@
 		<dependency>
 			<groupId>uk.co.caprica</groupId>
 			<artifactId>vlcj</artifactId>
-			<version>4.7.1</version>
+			<version>4.7.3</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="com.h2database:h2" type="repository">
-    <properties maven-id="com.h2database:h2:2.1.210" />
+    <properties maven-id="com.h2database:h2:2.1.212" />
     <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/com/h2database/h2/2.1.210/h2-2.1.210.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/h2database/h2/2.1.212/h2-2.1.212.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
