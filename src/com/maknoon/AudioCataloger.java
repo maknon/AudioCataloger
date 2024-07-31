@@ -2,7 +2,7 @@ package com.maknoon;
 
 /*
  * Maknoon Audio Cataloger
- * Version 4.5
+ * Version 4.6
  */
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -77,8 +77,8 @@ public class AudioCataloger extends Application
 	private static final String ls = System.lineSeparator();
 	private static final Rectangle2D screenSize = Screen.getPrimary().getVisualBounds();
 
-	static final float version = 4.5f;
-	static final float db_version = 4.5f;
+	static final float version = 4.6f;
+	static final float db_version = 4.6f;
 
 	private TitledPane searchPanel;
 
@@ -166,7 +166,7 @@ public class AudioCataloger extends Application
 	// To know which tree is being selected.
 	boolean feqhTreeSelected = false;
 
-	// This is used to avoid double clicking on the search panel when nothing is displayed.
+	// This is used to avoid double-clicking on the search panel when nothing is displayed.
 	private int searchSelectedIndex = -1;
 
 	// Initialize detailsSelectedIndex to -1 to solve the problem of trying to delete at the start of the program when nothing is selected.
@@ -298,7 +298,7 @@ public class AudioCataloger extends Application
 				alertError("برنامج المفهرس لمحاضرات جمع من أهل العلم" + ls +
 								"يمنع بيع البرنامج أو استخدامه فيما يخالف أهل السنة والجماعة" + ls +
 								"البرنامج مصرح لنشره واستخدامه للجميع" + ls +
-								"جميع الحقوق محفوظة © مكنون 2021" + ls +
+								"جميع الحقوق محفوظة © مكنون 2024" + ls +
 								"الإصدار " + version + ls
 						, "عن البرنامج", "متابعة", null, AlertType.INFORMATION);
 			}
@@ -468,7 +468,7 @@ public class AudioCataloger extends Application
 		tree.setCellFactory(tv ->
 		{
 			final Tooltip tooltip = new Tooltip();
-			final TreeCell<AudioInfo> cell = new TreeCell<AudioInfo>()
+			final TreeCell<AudioInfo> cell = new TreeCell<>()
 			{
 				@Override
 				public void updateItem(AudioInfo item, boolean empty)
@@ -584,13 +584,13 @@ public class AudioCataloger extends Application
 						final ObservableList<TreeItem<AudioInfo>> nodes = tree.getSelectionModel().getSelectedItems();
 						if (nodes.size() != 1)
 						{
-							//Platform.runLater(() -> Version 4.5, causes issue when search result is clicked, detailedList is empty since this function is called twice and runLater causes the list to disappeared since it is delayed.
-							//{
+							Platform.runLater(() ->
+							{
 								indexTextArea.clear();
 								tafreegTextArea.clear();
 								indexPanel.setText("عرض الفهرسة");
 								audioDetailsListModel.clear();
-							//});
+							});
 							return;
 						}
 
@@ -666,10 +666,13 @@ public class AudioCataloger extends Application
 								selected_Book_name = audio.info1;
 							}
 
-							indexTextArea.clear();
-							tafreegTextArea.clear();
-							indexPanel.setText("عرض الفهرسة");
-							audioDetailsListModel.clear();
+							Platform.runLater(() ->
+							{
+								indexTextArea.clear();
+								tafreegTextArea.clear();
+								indexPanel.setText("عرض الفهرسة");
+								audioDetailsListModel.clear();
+							});
 
 							// Version 1.6, This assign helps to avoid adding an index to an audio file when a non leaf node is selected after selecting a leaf node.
 							//selected_Code = 0; // Version 2.2, Removed
@@ -793,7 +796,13 @@ public class AudioCataloger extends Application
 								audioDetailsDuration.removeAllElements();
 								audioDetailsCode.removeAllElements();
 								audioDetailsSeq.removeAllElements();
-								audioDetailsListModel.clear();
+
+								/* replaced with setAll(), since clear() is delayed after adding the list, causing it to be empty all the time
+								Platform.runLater(() ->
+								{
+									audioDetailsListModel.clear();
+								});
+								*/
 
 								try
 								{
@@ -822,6 +831,7 @@ public class AudioCataloger extends Application
 									stmt1.close();
 
 									String LineDetailed;
+									final Vector<String> audioList = new Vector<>();
 									for (int i = 0, size = audioDetailsCode.size(); i < size; i++)
 									{
 										if (audioDetailsDuration.elementAt(i) == -1)
@@ -833,8 +843,9 @@ public class AudioCataloger extends Application
 											final String second = String.valueOf(duration / 1000 - ((int) ((float) duration / 60F / 1000F) * 60));
 											LineDetailed = '(' + String.valueOf(i + 1) + ") [" + minute + ':' + second + "] " + audioDetailsLine.elementAt(i);
 										}
-										audioDetailsListModel.add(LineDetailed);
+										audioList.add(LineDetailed);
 									}
+									audioDetailsListModel.setAll(audioList);
 								}
 								catch (Exception ex)
 								{
@@ -842,10 +853,20 @@ public class AudioCataloger extends Application
 								}
 							}
 							else
-								audioDetailsListModel.clear();
+							{
+								Platform.runLater(() ->
+								{
+									audioDetailsListModel.clear();
+								});
+							}
 						}
 						else
-							audioDetailsListModel.clear();
+						{
+							Platform.runLater(() ->
+							{
+								audioDetailsListModel.clear();
+							});
+						}
 					}
 				});
 
@@ -863,6 +884,9 @@ public class AudioCataloger extends Application
 					@Override
 					public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
 					{
+						if(newValue.intValue() == oldValue.intValue())
+							return;
+
 						feqhTree.getSelectionModel().clearSelection();
 						tree.getSelectionModel().clearSelection();
 
@@ -1965,8 +1989,11 @@ public class AudioCataloger extends Application
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
 			{
-				searchSelectedIndex = newValue.intValue();
-				audioSearchListAction();
+				if(oldValue.intValue() != newValue.intValue())
+				{
+					searchSelectedIndex = newValue.intValue();
+					audioSearchListAction();
+				}
 			}
 		});
 
@@ -1984,7 +2011,7 @@ public class AudioCataloger extends Application
 				 *
 				 * Version 2.0, Solved
 				 */
-				if (!fireSearchListSelectionListener && m.getClickCount() == 1 && searchSelectedIndex != -1)
+				if (!fireSearchListSelectionListener && m.getClickCount() == 1 && searchSelectedIndex != -1 && m.getEventType() == MouseEvent.MOUSE_PRESSED)
 				{
 					// removed, item is de-selected and not re-selected
 					//audioSearchList.getSelectionModel().clearSelection();
@@ -2239,7 +2266,6 @@ public class AudioCataloger extends Application
 
 								if (file != null)
 								{
-									// Removed: getAudioDuration(String.valueOf(file))
 									final int fileDuration = org.jaudiotagger.audio.AudioFileIO.read(file).getAudioHeader().getTrackLength(); // Working ok. but old and not in maven
 									//final int fileDuration = (int)jVLC.getLength(file); //not working it gives -1 if the file is not playing
 
@@ -2249,7 +2275,7 @@ public class AudioCataloger extends Application
 									//final Duration duration = audio.duration("Duration");
 									//final int fileDuration = duration.seconds();
 
-									/* This is working but you will increase the size by 30mb
+									/* This is working, but you will increase the size by 30mb
 									//https://ffmpeg.zeranoe.com/forum/viewtopic.php?t=3572&start=40
 									// Maven -> net.bramp.ffmpeg:ffmpeg:0.6.2
 									FFprobe ffprobe = new FFprobe(new File(AudioCataloger.cl.getResource("bin/ffprobe.exe").toURI()).getAbsolutePath());
@@ -4857,9 +4883,8 @@ public class AudioCataloger extends Application
 					audioDetailsOffset.addAll(new_audioDetailsOffset);
 					audioDetailsCode.addAll(new_audioDetailsCode);
 
-					audioDetailsListModel.clear();
-
 					String LineDetailed;
+					final Vector<String> list = new Vector<>();
 					for (int i = 0; i < size; i++)
 					{
 						if (audioDetailsDuration.elementAt(i) == -1)
@@ -4871,8 +4896,9 @@ public class AudioCataloger extends Application
 							final String second = String.valueOf(duration / 1000 - ((int) ((float) duration / 60F / 1000F) * 60));
 							LineDetailed = '(' + String.valueOf(i + 1) + ") [" + minute + ':' + second + "] " + audioDetailsLine.elementAt(i);
 						}
-						audioDetailsListModel.add(LineDetailed);
+						list.add(LineDetailed);
 					}
+					audioDetailsListModel.setAll(list);
 				}
 			}
 		});
@@ -5212,10 +5238,10 @@ public class AudioCataloger extends Application
 
 			/*
 			 * Since the user can change the path after one click (selection), so there will be error
-			 * since it will accept the new change in the choosedAudioPath because double clicking will
+			 * since it will accept the new change in the choosedAudioPath because double-clicking will
 			 * not trigger the selection again.
 			 *
-			 * As a results we will remove choosedAudioPath from the begining of audioSearchMouseSelectionListenerPath
+			 * As a results we will remove choosedAudioPath from the begining of audioSearchMouseSelectionListenerPath,
 			 * and we will add it in the AudioSearchSharedMouseListenerHandler.
 			 *
 			 * Originally it was:
@@ -5228,9 +5254,12 @@ public class AudioCataloger extends Application
 			// select tree path by code.
 			selectTreeNode(Integer.parseInt(searchInfo[1]));
 
-			//audioDetailsList.setSelectedIndex(Integer.parseInt(searchSeq)-1);
-			audioDetailsList.getSelectionModel().select(audioDetailsSeq.indexOf(Integer.parseInt(searchInfo[0])));
-			audioDetailsList.scrollTo(audioDetailsSeq.indexOf(Integer.parseInt(searchInfo[0])));
+			Platform.runLater(() ->
+			{
+				//audioDetailsList.setSelectedIndex(Integer.parseInt(searchSeq)-1);
+				audioDetailsList.getSelectionModel().select(audioDetailsSeq.indexOf(Integer.parseInt(searchInfo[0])));
+				audioDetailsList.scrollTo(audioDetailsSeq.indexOf(Integer.parseInt(searchInfo[0])));
+			});
 
 			fireSearchListSelectionListener = true;
 		}
@@ -5989,7 +6018,6 @@ public class AudioCataloger extends Application
 		audioDetailsOffset.removeAllElements();
 		audioDetailsDuration.removeAllElements();
 		audioDetailsSeq.removeAllElements();
-		audioDetailsListModel.clear();
 
 		selected_FileName = FileName_Temp;
 
@@ -6023,6 +6051,7 @@ public class AudioCataloger extends Application
 		}
 
 		String LineDetailed;
+		final Vector<String> list = new Vector<>();
 		for (int i = 0, size = audioDetailsOffset.size(); i < size; i++)
 		{
 			/*
@@ -6046,13 +6075,16 @@ public class AudioCataloger extends Application
 				//LineDetailed = "<HTML>(" + String.valueOf(i+1) + ") <font color=maroon>[" + minute + ':' + second + "]</font> " + audioDetailsLine.elementAt(i);
 				LineDetailed = "(" + (i + 1) + ") [" + minute + ':' + second + "] " + audioDetailsLine.elementAt(i);
 			}
-
-			audioDetailsListModel.add(LineDetailed);
+			list.add(LineDetailed);
 		}
 
-		indexTextArea.clear();
-		tafreegTextArea.clear();
-		indexPanel.setText("عرض الفهرسة");
+		Platform.runLater(() ->
+		{
+			audioDetailsListModel.setAll(list);
+			indexTextArea.clear();
+			tafreegTextArea.clear();
+			indexPanel.setText("عرض الفهرسة");
+		});
 	}
 
 	void createNodes()
@@ -6293,13 +6325,13 @@ public class AudioCataloger extends Application
 							final int duration = rs.getInt("Duration"); // Version 2.7
 							if (duration == -1)
 								listModel.add('(' + String.valueOf(count++) + ") [?] (" + rs1.getString("Short_sheekh_name") + ") (" + rs1.getString("Book_name") + ") " + inputLine);
-								//listModel.addElement("<html>("+String.valueOf(count++)+") <font color=green>[?]</font> <font color=maroon>("+rs1.getString("Short_sheekh_name")+")</font> <font color=blue>("+rs1.getString("Book_name")+")</font> "+inputLine);
+								//listModel.add("<html>("+String.valueOf(count++)+") <font color=green>[?]</font> <font color=maroon>("+rs1.getString("Short_sheekh_name")+")</font> <font color=blue>("+rs1.getString("Book_name")+")</font> "+inputLine);
 							else
 							{
 								final String minute = String.valueOf(duration / 60 / 1000);
 								final String second = String.valueOf(duration / 1000 - ((int) ((float) duration / 60F / 1000F) * 60));
 								listModel.add('(' + String.valueOf(count++) + ") [" + minute + ':' + second + "] (" + rs1.getString("Short_sheekh_name") + ") (" + rs1.getString("Book_name") + ") " + inputLine);
-								//listModel.addElement("<html>("+String.valueOf(count++)+") <font color=green>[" + minute + ":" + second + "]</font> <font color=maroon>("+rs1.getString("Short_sheekh_name")+")</font> <font color=blue>("+rs1.getString("Book_name")+")</font> "+inputLine);
+								//listModel.add("<html>("+String.valueOf(count++)+") <font color=green>[" + minute + ":" + second + "]</font> <font color=maroon>("+rs1.getString("Short_sheekh_name")+")</font> <font color=blue>("+rs1.getString("Book_name")+")</font> "+inputLine);
 							}
 						}
 					}
@@ -6376,13 +6408,13 @@ public class AudioCataloger extends Application
 							final int duration = rs.getInt("Duration");
 							if (duration == -1)
 								listModel.add('(' + String.valueOf(count++) + ") [?] (" + rs1.getString("Short_sheekh_name") + ") (" + rs1.getString("Book_name") + ") " + inputLine);
-								//listModel.addElement("<html>("+String.valueOf(count++)+") <font color=green>[?]</font> <font color=maroon>("+rs1.getString("Short_sheekh_name")+")</font> <font color=blue>("+rs1.getString("Book_name")+")</font> "+inputLine);
+								//listModel.add("<html>("+String.valueOf(count++)+") <font color=green>[?]</font> <font color=maroon>("+rs1.getString("Short_sheekh_name")+")</font> <font color=blue>("+rs1.getString("Book_name")+")</font> "+inputLine);
 							else
 							{
 								final String minute = String.valueOf(duration / 60 / 1000);
 								final String second = String.valueOf(duration / 1000 - ((int) ((float) duration / 60F / 1000F) * 60));
 								listModel.add('(' + String.valueOf(count++) + ") [" + minute + ':' + second + "] (" + rs1.getString("Short_sheekh_name") + ") (" + rs1.getString("Book_name") + ") " + inputLine);
-								//listModel.addElement("<html>("+String.valueOf(count++)+") <font color=green>[" + minute + ":" + second + "]</font> <font color=maroon>("+rs1.getString("Short_sheekh_name")+")</font> <font color=blue>("+rs1.getString("Book_name")+")</font> "+inputLine);
+								//listModel.add("<html>("+String.valueOf(count++)+") <font color=green>[" + minute + ":" + second + "]</font> <font color=maroon>("+rs1.getString("Short_sheekh_name")+")</font> <font color=blue>("+rs1.getString("Book_name")+")</font> "+inputLine);
 							}
 						}
 					}
@@ -6432,13 +6464,13 @@ public class AudioCataloger extends Application
 							final int duration = rs.getInt("Duration");
 							if (duration == -1)
 								listModel.add('(' + String.valueOf(count++) + ") [?] (" + rs1.getString("Short_sheekh_name") + ") (" + rs1.getString("Book_name") + ") " + inputLine);
-								//listModel.addElement("<html>("+String.valueOf(count++)+") <font color=green>[?]</font> <font color=maroon>("+rs1.getString("Short_sheekh_name")+")</font> <font color=blue>("+rs1.getString("Book_name")+")</font> "+inputLine);
+								//listModel.add("<html>("+String.valueOf(count++)+") <font color=green>[?]</font> <font color=maroon>("+rs1.getString("Short_sheekh_name")+")</font> <font color=blue>("+rs1.getString("Book_name")+")</font> "+inputLine);
 							else
 							{
 								final String minute = String.valueOf(duration / 60 / 1000);
 								final String second = String.valueOf(duration / 1000 - ((int) ((float) duration / 60F / 1000F) * 60));
 								listModel.add('(' + String.valueOf(count++) + ") [" + minute + ':' + second + "] (" + rs1.getString("Short_sheekh_name") + ") (" + rs1.getString("Book_name") + ") " + inputLine);
-								//listModel.addElement("<html>("+String.valueOf(count++)+") <font color=green>[" + minute + ":" + second + "]</font> <font color=maroon>("+rs1.getString("Short_sheekh_name")+")</font> <font color=blue>("+rs1.getString("Book_name")+")</font> "+inputLine);
+								//listModel.add("<html>("+String.valueOf(count++)+") <font color=green>[" + minute + ":" + second + "]</font> <font color=maroon>("+rs1.getString("Short_sheekh_name")+")</font> <font color=blue>("+rs1.getString("Book_name")+")</font> "+inputLine);
 							}
 						}
 					}

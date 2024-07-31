@@ -23,11 +23,12 @@
     <orderEntry type="library" name="org.apache.lucene:lucene-queryparser" level="project" />
     <orderEntry type="library" name="org.xerial:sqlite-jdbc" level="project" />
     <orderEntry type="library" name="uk.co.caprica:vlcj" level="project" />
-    <orderEntry type="library" name="jaudiotagger-3.0.0" level="project" />
+    <orderEntry type="library" name="jaudiotagger" level="project" />
     <orderEntry type="library" name="openjfx.javafx.media" level="project" />
     <orderEntry type="library" name="org.openjfx:javafx-controls" level="project" />
-    <orderEntry type="library" name="derby" level="project" />
     <orderEntry type="library" name="org.apache.lucene:lucene-analysis-common" level="project" />
     <orderEntry type="library" name="com.h2database:h2" level="project" />
+    <orderEntry type="library" name="org.apache.derby:derby" level="project" />
+    <orderEntry type="library" name="org.apache.derby:derbytools" level="project" />
   </component>
 </module>

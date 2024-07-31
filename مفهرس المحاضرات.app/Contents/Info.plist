@@ -9,7 +9,7 @@
 		<key>CFBundleName</key>
 		<string>المفهرس</string>
 		<key>CFBundleVersion</key>
-		<string>4.5</string>
+		<string>4.6</string>
 		<key>CFBundleIconFile</key>
 		<string>icon.icns</string>
 		<key>CFBundleIdentifier</key>
@@ -19,7 +19,7 @@
 		<key>CFBundleSignature</key>
 		<string>????</string>
 		<key>NSHumanReadableCopyright</key>
-		<string>©2021,Maknoon Apps</string>
+		<string>©2024,Maknoon Apps</string>
 		<key>NSHighResolutionCapable</key>
 		<string>true</string>
 	</dict>

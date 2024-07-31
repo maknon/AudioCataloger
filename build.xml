@@ -6,9 +6,9 @@
 	<property name="tools.dir"				value="E:\Support"/>
 	<property name="makensis.exe"			value="${tools.dir}\nsis\makensis.exe"/>
 	<property name="launch4j.jar"			value="${tools.dir}\launch4j\launch4j.jar"/>
-	<property name="jdk.linux"				value="openjdk-17_linux-x64_bin.tar.gz"/>
-	<property name="jdk.mac"				value="openjdk-17_macos-x64_bin.tar.gz"/>
-	<property name="jdk.win"				value="openjdk-17_windows-x64_bin.zip"/> <!-- www.bell-sw.com -->
+	<property name="jdk.linux"				value="openjdk-21_linux-x64_bin.tar.gz"/>
+	<property name="jdk.mac"				value="openjdk-21_macos-x64_bin.tar.gz"/>
+	<property name="jdk.win"				value="openjdk-21_windows-x64_bin.zip"/> <!-- www.bell-sw.com -->
 
 	<path id="class.path">
 		<fileset dir="${build.dir}" includes="resources/lib/*"/>
@@ -70,7 +70,7 @@
 			<exclude name="com/maknoon/RM_CLeaner.java"/>
 			<exclude name="com/maknoon/Test.java"/>
 			<exclude name="com/maknoon/TestDB.java"/>
-			<exclude name="com/maknoon/TestDBFiles.java"/>
+			<exclude name="com/maknoon/TestFiles.java"/>
 			<exclude name="com/maknoon/TestSeq.java"/>
 			<exclude name="com/maknoon/TestMedia.java"/>
 			<exclude name="com/maknoon/ArabicRootIndexing.java"/>

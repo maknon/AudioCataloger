@@ -7,5 +7,5 @@ jdk/bin/java \
 	-Xmx1024m \
 	-Dprism.lcdtext=false \
 	--module-path resources/mods \
-	--add-modules javafx.controls,javafx.graphics,javafx.media \
+	--add-modules javafx.controls,javafx.graphics,javafx.media,jdk.incubator.vector \
 	-jar AudioCataloger.jar

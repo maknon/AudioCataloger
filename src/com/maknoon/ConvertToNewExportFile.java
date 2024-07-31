@@ -43,7 +43,7 @@ public class ConvertToNewExportFile
 						}
 					}
 
-					Files.writeString(new File(tempDir + "/info").toPath(), "converted\n4.5\nconverted from old encrypted file");
+					Files.writeString(new File(tempDir + "/info").toPath(), "converted\n4.6\nconverted from old encrypted file");
 
 					// Tar all files
 					byte[] buf = new byte[1024];

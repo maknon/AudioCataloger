@@ -13,7 +13,7 @@ import java.sql.*;
 import java.io.*;
 import java.util.*;
 
-public class CreateAudioCatalogerDatabase
+class CreateAudioCatalogerDatabase
 {
 	public static void main(String[] args) throws Exception
 	{
@@ -22,9 +22,9 @@ public class CreateAudioCatalogerDatabase
 	}
 
 	static final boolean generate_H2 = false; // It will generate a working empty h2 db (with catalog table) in case of false
-	static final boolean generate_derby = false; // It will generate a working empty derby db (with catalog table) in case of false
+	static final boolean generate_derby = true; // It will generate a working empty derby db (with catalog table) in case of false
 
-	private CreateAudioCatalogerDatabase()
+	CreateAudioCatalogerDatabase()
 	{
 		long startTime = System.nanoTime();
 
@@ -37,7 +37,7 @@ public class CreateAudioCatalogerDatabase
 			final Connection memoryCon = DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
 			final Connection h2Con = DriverManager.getConnection("jdbc:h2:./db.h2/audioCatalogerDatabase");
 			final Connection derbyCon = DriverManager.getConnection("jdbc:derby:db.derby;create=true");
-			final Connection AccessCon = DriverManager.getConnection("jdbc:ucanaccess://E:/AudioCataloger Media/Archive/4.5/db-a.mdb");
+			final Connection AccessCon = DriverManager.getConnection("jdbc:ucanaccess://E:/AudioCataloger Media/Archive/4.6/db-a.mdb");
 
 			// Version 2.7, Copy the DB from MS ACCESS to H2 In-Memory DB
 			Statement memoryStmt = memoryCon.createStatement();

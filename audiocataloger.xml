@@ -12,18 +12,16 @@
   <icon>icon.ico</icon>
   <jre>
     <path>jdk</path>
-	<bundledJre64Bit>true</bundledJre64Bit>
-	<bundledJreAsFallback>false</bundledJreAsFallback>
-	<jdkPreference>jdkOnly</jdkPreference>
-	<runtimeBits>64</runtimeBits>
+	<requires64Bit>true</requires64Bit>
+	<requiresJdk>true</requiresJdk>
   </jre>
   <versionInfo>
-    <fileVersion>4.5.0.0</fileVersion>
-    <txtFileVersion>4.5</txtFileVersion>
+    <fileVersion>4.6.0.0</fileVersion>
+    <txtFileVersion>4.6</txtFileVersion>
     <fileDescription>»—‰«„Ã „›Â—” «·„Õ«÷—« </fileDescription>
-    <copyright>©2021 Maknoon Apps</copyright>
-    <productVersion>4.5.0.0</productVersion>
-    <txtProductVersion>4.5</txtProductVersion>
+    <copyright>©2024 Maknoon Apps</copyright>
+    <productVersion>4.6.0.0</productVersion>
+    <txtProductVersion>4.6</txtProductVersion>
     <productName>„›Â—” «·„Õ«÷—« </productName>
     <companyName>»—«„Ã „ﬂ‰Ê‰</companyName>
     <internalName>„›Â—” «·„Õ«÷—« </internalName>

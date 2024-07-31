@@ -1,33 +1,33 @@
 package com.maknoon;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.net.ftp.*;
+
+import static java.lang.System.lineSeparator;
 
 // OpusConverter <source folder> <dest folder> <FTP: true/false> <per Index: true/false>
 // Disable anti-virus while converting since it is consuming the CPU. or label the folder as trusted
 // ffmpeg needs libfdk-aac [http://oss.netfarm.it/mplayer/]
 public class OpusConverter
 {
-	private final String lineSeparator = System.getProperty("line.separator");
-
 	private static final boolean opus = false; // m4a/opus
 	private static final boolean ftpEnabled = false;
 	private static final boolean perIndex = true;
-	private static final String src = "E:/AudioCataloger Media/Audios";
-	private static final String dst = "C:/Users/ias12/Desktop/ffmpeg";
-	private static final String ffmpegPath = "C:/Users/ias12/Desktop/ffmpeg/ffmpeg.exe";
+	private static final String src = "E:/AudioCataloger Media/Audios1";
+	private static final String dst = "C:/Users/ias12/Desktop/Audios";
+	private static final String ffmpegPath = "E:/Support/ffmpeg-gst/ffmpeg.exe";
+	private static final String ffprobePath = "E:/Support/ffmpeg-gst/ffprobe.exe";
 
 	static ClassLoader cl;
 
 	public static void main(String[] arg)
 	{
 		cl = OpusConverter.class.getClassLoader();
-
-		//src = arg[0];
-		//dst = arg[1];
-		//ftpEnabled = arg[2].equals("true");
-		//perIndex = arg[3].equals("true");
 		new OpusConverter();
 	}
 
@@ -49,9 +49,9 @@ public class OpusConverter
 			}
 
 			final Thread[] threads = new Thread[10];
-			//13346
-			final int startCode = 15065; // (chapters.code-1) TODO: must to do based on every update. otherwise you will end up using only one thread
-			final int endCode = 15077; // (chapters.code+1)
+			//15065 - 15077
+			final int startCode = 13555; // (chapters.code-1) TODO: must to do based on every update. otherwise you will end up using only one thread
+			final int endCode = 13718; // (chapters.code+1)
 			final int maxCode = endCode - startCode;
 			for (int i = 0; i < threads.length; i++)
 			{
@@ -75,8 +75,7 @@ public class OpusConverter
 				threads[i].start();
 			}
 
-			for (int i = 0; i < threads.length; i++)
-				threads[i].join();
+			for (Thread thread : threads) thread.join();
 
 			conn.close();
 
@@ -98,7 +97,7 @@ public class OpusConverter
 		ftp.setAutodetectUTF8(true);
 		ftp.setControlEncoding("UTF-8");
 		ftp.setDefaultTimeout(30000);
-		ftp.setControlKeepAliveTimeout(10L);
+		ftp.setControlKeepAliveTimeout(Duration.ofSeconds(10));
 		boolean error = false;
 		try
 		{
@@ -126,7 +125,7 @@ public class OpusConverter
 			ftp.setFileType(FTP.BINARY_FILE_TYPE);
 			ftp.enterLocalPassiveMode();
 
-			final OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(from + "-" + to + ".txt"), "UTF-8");
+			final OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(from + "-" + to + ".txt"), StandardCharsets.UTF_8);
 
 			final Statement s = conn.createStatement();
 			final ResultSet rs = s.executeQuery("SELECT * FROM Chapters WHERE Code>=" + from + " AND Code<=" + to + " ORDER BY Code");
@@ -145,7 +144,7 @@ public class OpusConverter
 					final String dest = destFile.getAbsolutePath();
 					new File(dst + '/' + path).mkdirs();
 
-					out.write(code + ":	" + dest + lineSeparator);
+					out.write(code + ":	" + dest + lineSeparator());
 					out.flush(); // To avoid power-off
 
 					if (!destFile.exists())
@@ -165,7 +164,8 @@ public class OpusConverter
 							“comment”
 							 */
 							final long br = org.jaudiotagger.audio.AudioFileIO.read(srcFile).getAudioHeader().getBitRateAsNumber();
-							if(br < 16L && type.equals("rm")) // profile aac_he is not working with bit rates below 16k for input files
+							final int sr = getAudioSampleRate(source);
+							if((br < 16L || sr < 16000) && type.equals("rm")) // profile aac_he is not working with bit rates below 16k for input files
 								proc = Runtime.getRuntime().exec(new String[]{ffmpegPath, "-i", source, "-map_metadata", "-1", "-metadata", "Artist=" + rs.getString("Sheekh_name"), "-metadata", "comment=©maknoon.com", "-metadata", "author=" + rs.getString("Sheekh_name"), "-metadata", "album=" + rs.getString("Book_name"), "-metadata", "title=" + rs.getString("Title"), "-c:a", "libfdk_aac", "-b:a", "16k", "-movflags", "+faststart", "-af", "aresample=async=1000", dest});
 							else
 								proc = Runtime.getRuntime().exec(new String[]{ffmpegPath, "-i", source, "-map_metadata", "-1", "-metadata", "Artist=" + rs.getString("Sheekh_name"), "-metadata", "comment=©maknoon.com", "-metadata", "author=" + rs.getString("Sheekh_name"), "-metadata", "album=" + rs.getString("Book_name"), "-metadata", "title=" + rs.getString("Title"), "-c:a", "libfdk_aac", "-profile:a", "aac_he", "-b:a", "16k", "-movflags", "+faststart", "-af", "aresample=async=1000", dest});
@@ -180,7 +180,7 @@ public class OpusConverter
 						int exitVal = proc.waitFor();
 						if (exitVal != 0)
 						{
-							out.write("Finished code: " + code + " ExitValue: " + exitVal + lineSeparator);
+							out.write("Finished code: " + code + " ExitValue: " + exitVal + lineSeparator());
 							out.flush(); // To avoid power-off
 						}
 					}
@@ -190,23 +190,20 @@ public class OpusConverter
 					//boolean success = ftp.makeDirectory(dirToCreate);
 
 					final String[] pathElements = dirToCreate.split("/");
-					if (pathElements.length > 0)
+					for (String singleDir : pathElements)
 					{
-						for (String singleDir : pathElements)
+						boolean existed = ftp.changeWorkingDirectory(singleDir);
+						if (!existed)
 						{
-							boolean existed = ftp.changeWorkingDirectory(singleDir);
-							if (!existed)
+							boolean created = ftp.makeDirectory(singleDir);
+							if (created)
 							{
-								boolean created = ftp.makeDirectory(singleDir);
-								if (created)
-								{
-									//System.out.println("CREATED directory: " + singleDir);
-									ftp.changeWorkingDirectory(singleDir);
-								}
-								else
-								{
-									//System.out.println("COULD NOT create directory: " + singleDir);
-								}
+								//System.out.println("CREATED directory: " + singleDir);
+								ftp.changeWorkingDirectory(singleDir);
+							}
+							else
+							{
+								//System.out.println("COULD NOT create directory: " + singleDir);
 							}
 						}
 					}
@@ -231,7 +228,7 @@ public class OpusConverter
 						destFile.delete();
 					else
 					{
-						out.write("FTP not done" + lineSeparator);
+						out.write("FTP not done" + lineSeparator());
 						out.flush();
 					}
 				}
@@ -281,7 +278,7 @@ public class OpusConverter
 	{
 		try
 		{
-			final OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(from + "-" + to + ".txt"), "UTF-8");
+			final OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(from + "-" + to + ".txt"), StandardCharsets.UTF_8);
 
 			final Statement s = conn.createStatement();
 			final ResultSet rs = s.executeQuery("SELECT * FROM Chapters WHERE Code>=" + from + " AND Code<=" + to + " ORDER BY Code");
@@ -296,20 +293,11 @@ public class OpusConverter
 
 				if (srcFile.exists()) // Version 3.3
 				{
-					/* Test low Bit rates for all files and test it with any ffmpeg options
-					final long br1 = org.jaudiotagger.audio.AudioFileIO.read(srcFile).getAudioHeader().getBitRateAsNumber();
-					if(br1 < 16L && type.equals("rm"))
-						System.out.println(srcFile + " BitRate: " + br1);
-
-					if(true)
-						continue;
-					*/
-
 					final File destFile = new File(dst + '/' + path + '/' + file + (opus ? ".opus" : ".m4a"));
 					final String dest = destFile.getAbsolutePath();
 					new File(dst + '/' + path).mkdirs();
 
-					out.write(code + ":	" + dest + lineSeparator);
+					out.write(code + ":	" + dest + lineSeparator());
 					out.flush(); // To avoid power-off
 
 					if (!destFile.exists())
@@ -329,7 +317,10 @@ public class OpusConverter
 							“comment”
 							 */
 							final long br = org.jaudiotagger.audio.AudioFileIO.read(srcFile).getAudioHeader().getBitRateAsNumber();
-							if(br < 16L && type.equals("rm"))
+							final int sr = getAudioSampleRate(source);
+							//final int sr = org.jaudiotagger.audio.AudioFileIO.read(srcFile).getAudioHeader().getSampleRateAsNumber(); // NULL all the time
+
+							if((br < 16L || sr < 16000) && type.equals("rm"))
 								proc = Runtime.getRuntime().exec(new String[]{ffmpegPath, "-i", source, "-map_metadata", "-1", "-metadata", "Artist=" + rs.getString("Sheekh_name"), "-metadata", "comment=©maknoon.com", "-metadata", "author=" + rs.getString("Sheekh_name"), "-metadata", "album=" + rs.getString("Book_name"), "-metadata", "title=" + rs.getString("Title"), "-c:a", "libfdk_aac", "-b:a", "16k", "-movflags", "+faststart", "-af", "aresample=async=1000", dest});
 							else
 								//proc = Runtime.getRuntime().exec(new String[]{ffmpegPath, "-i", source, "-map_metadata", "-1", "-metadata", "Artist=" + rs.getString("Sheekh_name"), "-metadata", "comment=©maknoon.com", "-metadata", "author=" + rs.getString("Sheekh_name"), "-metadata", "album=" + rs.getString("Book_name"), "-metadata", "title=" + rs.getString("Title"), "-c:a", "libfdk_aac", "-vbr", "1", "-movflags", "frag_keyframe", "-af", "aresample=async=1000", "-f", "mp4", dest});
@@ -345,7 +336,7 @@ public class OpusConverter
 						int exitVal = proc.waitFor();
 						if (exitVal != 0)
 						{
-							out.write("Finished code: " + code + " ExitValue: " + exitVal + lineSeparator);
+							out.write("Finished code: " + code + " ExitValue: " + exitVal + lineSeparator());
 							out.flush(); // To avoid power-off
 						}
 					}
@@ -365,7 +356,7 @@ public class OpusConverter
 	{
 		try
 		{
-			final OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(from + "-" + to + ".txt"), "UTF-8");
+			final OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(from + "-" + to + ".txt"), StandardCharsets.UTF_8);
 
 			final Statement s = conn.createStatement();
 			final Statement s1 = conn.createStatement();
@@ -394,7 +385,7 @@ public class OpusConverter
 						final File destFile = new File(dst + '/' + path + '/' + file + '/' + seq + (opus ? ".opus" : ".m4a"));
 						final String dest = destFile.getAbsolutePath();
 
-						out.write(code + ":	" + dest + lineSeparator);
+						out.write(code + ":	" + dest + lineSeparator());
 						out.flush(); // To avoid power-off
 
 						if (!destFile.exists())
@@ -413,7 +404,8 @@ public class OpusConverter
 							else
 							{
 								final long br = org.jaudiotagger.audio.AudioFileIO.read(srcFile).getAudioHeader().getBitRateAsNumber();
-								if(br < 16L && type.equals("rm"))
+								final int sr = getAudioSampleRate(source);
+								if((br < 16L || sr < 16000) && type.equals("rm"))
 								{
 									if (duration == -1)
 										proc = Runtime.getRuntime().exec(new String[]{ffmpegPath, "-i", source, "-ss", String.valueOf(offset / 1000), "-map_metadata", "-1", "-metadata", "Artist=" + sheekh_name, "-metadata", "comment=©maknoon.com", "-metadata", "author=" + sheekh_name, "-metadata", "album=" + book_name, "-metadata", "title=" + title, "-c:a", "libfdk_aac", "-b:a", "16k", "-movflags", "+faststart", "-af", "aresample=async=1000", dest});
@@ -447,13 +439,13 @@ public class OpusConverter
 								int exitVal = proc.waitFor();
 								if (exitVal != 0)
 								{
-									out.write("Finished code: " + code + " Seq " + seq + " ExitValue: " + exitVal + lineSeparator);
+									out.write("Finished code: " + code + " Seq " + seq + " ExitValue: " + exitVal + lineSeparator());
 									out.flush(); // To avoid power-off
 								}
 							}
 							else
 							{
-								out.write("Finished code: " + code + " Seq " + seq + " -> empty index (0 duration)" + lineSeparator);
+								out.write("Finished code: " + code + " Seq " + seq + " -> empty index (0 duration)" + lineSeparator());
 								out.flush(); // To avoid power-off
 							}
 						}
@@ -461,7 +453,7 @@ public class OpusConverter
 						{
 							if (destFile.length() == 0L)
 							{
-								out.write("File is empty: " + destFile + lineSeparator);
+								out.write("File is empty: " + destFile + lineSeparator());
 								out.flush();
 							}
 						}
@@ -478,6 +470,36 @@ public class OpusConverter
 		{
 			e.printStackTrace();
 		}
+	}
+
+	int getAudioSampleRate(String source)
+	{
+		int sr = 9999999; // just a bigger number than any sample rate
+
+		try
+		{
+			final Process sr_p = Runtime.getRuntime().exec(new String[]{ffprobePath, "-show_streams", "-show_entries", "stream=sample_rate", source});
+
+			new StreamGrabber(sr_p.getErrorStream(), "sr_p_error").start(); // any error message?
+			final BufferedReader in = new BufferedReader(new InputStreamReader(sr_p.getInputStream()));
+			String inputLine;
+			while ((inputLine = in.readLine()) != null)
+			{
+				if (inputLine.contains("sample_rate"))
+					sr = Integer.parseInt(inputLine.split("=")[1]);
+			}
+			in.close();
+			final boolean exitVal2 = sr_p.waitFor(2, TimeUnit.SECONDS);
+			//System.out.println("sr_p process exit value (true -> OK): " + exitVal2);
+			if (!exitVal2)
+				sr_p.destroyForcibly();
+		}
+		catch (IOException | InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+
+		return sr;
 	}
 
 	static class StreamGrabber extends Thread

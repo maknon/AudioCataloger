@@ -44,7 +44,7 @@ $\r$\n\
 يمنع بيع البرنامج أو استخدامه فيما يخالف أهل السنة والجماعة$\r$\n\
 البرنامج مصرح لنشره واستخدامه من جميع المسلمين$\r$\n\
 جميع الحقوق محفوظة لموقع مكنون$\r$\n\
-الإصدار 4.5"
+الإصدار 4.6"
 
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_DIRECTORY
@@ -89,12 +89,12 @@ FunctionEnd
 ; The name of the installer
 Name "${PROGRAM_NAME_AR}"
 BrandingText "${PROGRAM_NAME_AR}"
-VIProductVersion "4.5.0.0"
+VIProductVersion "4.6.0.0"
 VIAddVersionKey "ProductName" "${PROGRAM_NAME_AR}"
 VIAddVersionKey "CompanyName" "برامج مكنون"
 VIAddVersionKey "LegalCopyright" "©maknoon.com"
 VIAddVersionKey "FileDescription" "${PROGRAM_NAME_AR}"
-VIAddVersionKey "FileVersion" "4.5"
+VIAddVersionKey "FileVersion" "4.6"
 VIAddVersionKey "InternalName" "${PROGRAM_NAME}"
 
 Section "${PROGRAM_NAME}" SEC_IDX
@@ -127,7 +127,7 @@ Section "${PROGRAM_NAME}" SEC_IDX
 	WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}" "DisplayName" "${PROGRAM_NAME_AR}"
 	WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}" "URLInfoAbout" "https://www.maknoon.com"
 	WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}" "DisplayIcon" "$INSTDIR\icon.ico"
-	WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}" "DisplayVersion" "4.5"
+	WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}" "DisplayVersion" "4.6"
 	WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}" "Publisher" "برامج مكنون"
 	WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}" "UninstallString" '"$INSTDIR\uninstall.exe"'
 	WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}" "NoModify" 1

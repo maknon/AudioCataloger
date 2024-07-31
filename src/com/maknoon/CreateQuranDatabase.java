@@ -1,7 +1,6 @@
 package com.maknoon;
 
 // Version 3.0
-import java.net.URISyntaxException;
 import java.sql.*;
 import java.io.*;
 import java.util.Vector;
