@@ -2215,11 +2215,11 @@ public class AudioCataloger extends Application
 
 					final TextField hourTextField = new TextField();
 					hourTextField.setPrefColumnCount(2);
-					hourTextField.setTextFormatter(new TextFormatter(modifyChange));
+					hourTextField.setTextFormatter(new TextFormatter<>(modifyChange));
 
 					final TextField minuteTextField = new TextField();
 					minuteTextField.setPrefColumnCount(2);
-					minuteTextField.setTextFormatter(new TextFormatter(modifyChange));
+					minuteTextField.setTextFormatter(new TextFormatter<>(modifyChange));
 
 					final TextField secondTextField = new TextField();
 					secondTextField.setPrefColumnCount(2);
@@ -3670,8 +3670,8 @@ public class AudioCataloger extends Application
 
 					final TextField hourTextField = new TextField(String.valueOf(hour));
 					final TextField minuteTextField = new TextField(String.valueOf(minute));
-					hourTextField.setTextFormatter(new TextFormatter(modifyChange));
-					minuteTextField.setTextFormatter(new TextFormatter(modifyChange));
+					hourTextField.setTextFormatter(new TextFormatter<>(modifyChange));
+					minuteTextField.setTextFormatter(new TextFormatter<>(modifyChange));
 
 					final TextField secondTextField = new TextField(String.format("%04.1f", second));
 
@@ -5484,8 +5484,8 @@ public class AudioCataloger extends Application
 
 			final TextField hourTextField = new TextField(String.valueOf(minHour));
 			final TextField minuteTextField = new TextField(String.valueOf(minMinute));
-			hourTextField.setTextFormatter(new TextFormatter(modifyChange));
-			minuteTextField.setTextFormatter(new TextFormatter(modifyChange));
+			hourTextField.setTextFormatter(new TextFormatter<>(modifyChange));
+			minuteTextField.setTextFormatter(new TextFormatter<>(modifyChange));
 
 			final TextField secondTextField = new TextField(String.format("%04.1f", minSecond));
 

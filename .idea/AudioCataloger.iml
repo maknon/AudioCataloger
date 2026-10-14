@@ -30,5 +30,6 @@
     <orderEntry type="library" name="com.h2database:h2" level="project" />
     <orderEntry type="library" name="org.apache.derby:derby" level="project" />
     <orderEntry type="library" name="org.apache.derby:derbytools" level="project" />
+    <orderEntry type="library" name="postgresql" level="project" />
   </component>
 </module>

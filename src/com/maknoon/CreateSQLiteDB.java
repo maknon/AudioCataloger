@@ -41,7 +41,7 @@ public final class CreateSQLiteDB
 			bw.println("CREATE TABLE Contents(Code SMALLINT, Seq TINYINT UNSIGNED, Sheekh_id TINYINT, Book_id SMALLINT, `Offset` INTEGER UNSIGNED, Duration INTEGER UNSIGNED, Category_id TEXT, Line VARCHAR(20000), Tafreeg TEXT(65535), FileName VARCHAR(500), Path VARCHAR(150), Book_name VARCHAR(100), Sheekh_name VARCHAR(100), Title VARCHAR(100)) CHARSET=utf8;");
 			bw.println("CREATE TABLE Category(Category_id SMALLINT, Category_name VARCHAR(100), Category_parent SMALLINT UNSIGNED, PRIMARY KEY(Category_id)) CHARSET=utf8;");
 
-			// Using setAutoCommit(false) then INSERT then setAutoCommit(true) will boost the speed.
+			// Using setAutoCommit(false) then INSERT, then setAutoCommit(true) will boost the speed.
 			sqliteCon.setAutoCommit(false);
 			sqliteCon2.setAutoCommit(false);
 
@@ -256,7 +256,7 @@ public final class CreateSQLiteDB
 	}
 
 	// Including FTS4 so that no need to recreate the FTS4 in android saving a lot of time for first time initiation
-	// TODO: file size is big more than 100MB compressed (188MB), hence google play will not accept it
+	// TODO: file size is big more than 100MB compressed (188MB), hence Google Play will not accept it
 	private void CreateSQLiteDB_with_fts4()
 	{
 		final ClassLoader cl = CreateSQLiteDB.class.getClassLoader();
@@ -273,7 +273,7 @@ public final class CreateSQLiteDB
 			final Connection sqliteCon = DriverManager.getConnection("jdbc:sqlite:database.db", config.toProperties());
 			final Connection con = DriverManager.getConnection("jdbc:derby:" + new File(cl.getResource("db").getFile()).getAbsolutePath());
 
-			// Using setAutoCommit(false) then INSERT then setAutoCommit(true) will boost the speed.
+			// Using setAutoCommit(false) then INSERT, then setAutoCommit(true) will boost the speed.
 			sqliteCon.setAutoCommit(false);
 
 			final Statement memoryStmt = memoryCon.createStatement();
